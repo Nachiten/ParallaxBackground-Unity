@@ -1,36 +1,35 @@
 using UnityEngine;
 
+// ReSharper disable Unity.InefficientPropertyAccess
+
 public class Parallax : MonoBehaviour
 {
-    private float length, startpos;
-    private GameObject cam;
     public float parallaxEffect;
+    public float xMax = 282;
+    public float speed = 100;
     
+    private Rigidbody2D rigidBody;
+
     void Start()
     {
-        cam = GameObject.Find("Main Camera");
-
-        startpos = transform.position.x;
-        length = GetComponent<SpriteRenderer>().bounds.size.x;
-
-        parallaxEffect = Mathf.Clamp(parallaxEffect, 0, 1);
+        rigidBody = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
     {
-        var camPosition = cam.transform.position;
+        float parallaxEffectValue = Mathf.Clamp(1 - parallaxEffect, 0, 1);
+
+        Vector3 speedVector = transform.right * speed * parallaxEffectValue;
+
+        Debug.Log("Speed vector: " + speedVector);
         
-        float moveRelativeToCam = camPosition.x * (1 - parallaxEffect);
-        float dist = camPosition.x * parallaxEffect;
+        // Establezco una velocidad en base a speed y al efecto paralax
+        rigidBody.velocity = speedVector;
 
-        var transformPosition = transform.position;
-        
-        transform.position = new Vector3(startpos + dist, transformPosition.y, transformPosition.z);
+        // Si me pase del borde vuelvo al inicio
+        if (transform.position.x >= xMax)
+            transform.position = new Vector3(0, transform.position.y, transform.position.z);
 
-        if (moveRelativeToCam > startpos + length)
-            startpos += length;
-
-        if (moveRelativeToCam < startpos - length)
-            startpos -= length;
+        //transform.position = new Vector3(startpos + dist, transformPosition.y, transformPosition.z);
     }
 }
